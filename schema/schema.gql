@@ -1,0 +1,230 @@
+type User {
+  token: String!
+  userName: String!
+}
+
+input Date {
+  date: Int!
+  month: Int!
+  year: Int!
+}
+
+type DateType {
+  date: Int!
+  month: Int!
+  year: Int!
+}
+
+input name {
+  firstName: String!
+  middleName: String!
+  lastName: String!
+}
+
+input address {
+  houseName: String!
+  street: String!
+  city: String!
+  state: String!
+  country: String!
+  pincode: String!
+}
+
+input contactDetails {
+  number: String!
+  countryCode: Int!
+}
+
+input RegisterInput {
+  title: String!
+  email: String!
+  password: String!
+  confirmPassword: String!
+  dob: Date!
+  gender: String!
+  name: name!
+  address: address!
+  mobileNumber: contactDetails!
+  adhaarNumber: String!
+  profileImage: String!
+}
+
+input Medicine {
+  name: String!
+  power: String!
+  duration: String!
+  dose: String!
+}
+
+input PharmaMedicine {
+  medicineName: String!
+  companyName: String!
+  quantityBoxe: Int!
+  quantityStrip: Int!
+  quantityTablet: Int!
+  totalTablets: Int!
+}
+
+type PharmaMedicineType {
+  medicineName: String!
+  companyName: String!
+  quantityBox: Int!
+  quantityStrip: Int!
+  quantityTablet: Int!
+  totalTablets: Int!
+}
+
+type MedicineType {
+  name: String!
+  power: String!
+  duration: String!
+  dose: String!
+}
+
+input Test {
+  name: String!
+}
+
+type TestType {
+  name: String!
+}
+
+input DocRecordInput {
+  doctorID: ID!
+  patientID: ID!
+  date: Date!
+  diagnostic: String!
+  disease: String!
+  advice: [String]!
+  medicines: [Medicine]!
+  tests: [Test]!
+}
+
+input RadioRecordInput {
+  imageURL: [String]!
+  laboratoryID: String!
+  patientID: String!
+  date: Date!
+  scanType: String!
+  bodyPart: String!
+  observations: [String]!
+  impressions: [String]!
+}
+
+input PathoRecordInput {
+  laboratoryID: String!
+  patientID: String!
+  date: Date!
+  departmentName: String!
+  investigations: [String]!
+}
+
+input PharmaRecordInput {
+  pharmacyID: String!
+  date: Date!
+  medicine: PharmaMedicine!
+  pharmaStockType: String!
+  expiryDate: Date!
+}
+
+type PharmaRecord {
+  _id: ID!
+  pharmacyID: String!
+  date: DateType!
+  medicine: PharmaMedicineType!
+  pharmaStockType: String!
+  expiryDate: DateType!
+}
+
+type PathoRecord {
+  _id: ID!
+  laboratoryID: String!
+  patientID: String!
+  date: DateType!
+  departmentName: String!
+  investigations: [String]!
+}
+
+type RadioRecord {
+  _id: ID!
+  imageURL: [String]!
+  laboratoryID: String!
+  patientID: String!
+  date: DateType!
+  scanType: String!
+  bodyPart: String!
+  observations: [String]!
+  impressions: [String]!
+}
+
+type DocRecord {
+  _id: ID!
+  doctorID: ID!
+  patientID: ID!
+  date: DateType!
+  diagnostic: String!
+  disease: String!
+  advice: [String]!
+  medicines: [MedicineType]!
+  tests: [TestType]!
+}
+
+type PatientRecord {
+  _id: ID!
+  recordID: ID!
+  patientID: ID!
+  typeRecord: String!
+  notified: Boolean!
+}
+
+type Appointment {
+  _id: ID!
+  patientID: String!
+  tokenID: String!
+  approved: Boolean!
+  state: String!
+  appointmentWith: String!
+  date: DateType!
+}
+
+input AppointmentRecordInput {
+  appointmentWith: String!
+  date: Date!
+  patientID: String!
+}
+
+type Query {
+  getUser: String!
+  getDocRecords: [DocRecord]!
+  getPatDocRecords(patientID: String!): [DocRecord]!
+  getDocRecord(recordID: ID!): DocRecord!
+  getPatRecords(patientID: ID!): [PatientRecord]!
+  getRadioRecords: [RadioRecord]!
+  getPatRadioRecords(patientID: ID!): [RadioRecord]!
+  getRadioRecord(recordID: ID!): RadioRecord!
+  getPathoRecords: [PathoRecord]!
+  getPatPathoRecords(patientID: ID!): [PathoRecord]!
+  getPathoRecord(recordID: ID!): PathoRecord!
+  getPharmaRecords: [PharmaRecord]!
+  getPatPharmaRecords(patientID: ID!): [PharmaRecord]!
+  getPharmaRecord(recordID: ID!): PharmaRecord!
+  sendOTP(email: String!): String!
+  getAppointments(appointmentWith: String!, date: Date!): [Appointment]!
+  getOpenAppointments(appointmentWith: String!, date: Date!): [Appointment]!
+  getApprovedAppointments(appointmentWith: String!, date: Date!): [Appointment]!
+  getUnapprovedAppointments(appointmentWith: String!, date: Date!): [Appointment]!
+}
+
+type Mutation {
+  register(registerInput: RegisterInput): User!
+  login(userName: String!, password: String!): User!
+  resetPassword(userID: String, OTP: Boolean!, password: String!, confirmPassword: String!): String!
+  addDocRecord(docRecordInput: DocRecordInput!): String!
+  setNotifiedRecord(recordID: String!, patientID: String!): String!
+  addRadioRecord(radioRecordInput: RadioRecordInput!): String!
+  addPathoRecord(pathoRecordInput: PathoRecordInput!): String!
+  addPharmaRecord(pharmaRecordInput: PharmaRecordInput!): String!
+  addAppointment(appointmentRecordInput: AppointmentRecordInput!): String!
+  setCloseAppointment(appointmentID: String!): String!
+  setApprovedAppointment(appointmentID: String!): String!
+}
