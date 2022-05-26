@@ -1,10 +1,12 @@
-
+const User = require("../../models/User");
 const checkAuth = require("../../authentication/auth");
 const { AppointmentModel } = require("../../models/AppointmentRecords");
 const { AuthenticationError } = require("apollo-server");
 const { default: axios } = require("axios");
 const { ProduceFinalAddedRecords } = require("../../validators/FinalRecords");
 const PatientRecords = require("../../models/PatientRecords");
+const { sendCustomMail } = require("../../mail/Mailer");
+const { appointmentBookedHTMLText, appointmentClosedHTMLText, appointmentApprovedHTMLText } = require("../../mail/TextMailHTML");
 
 
 module.exports = {
@@ -62,6 +64,10 @@ module.exports = {
                     const successOne = await axios.post(process.env.BLOCKCHAIN_URI + "/addBlock", { data: `Patient Record Added ${patRecord._id}` });
                     if (successOne.status === 200) {
                         const newPatRecord = await patRecord.save();
+                        const patient = await User.find({ userName: patientID });
+
+                        sendCustomMail(patient.email, "Appointment Booked", appointmentBookedHTMLText({ ...patient.name }, newAppointment.tokenID));
+
                         return newAppointment;
                     }
                     else {
@@ -90,7 +96,12 @@ module.exports = {
                     { "$set": { "state": "Close" } }
                 );
                 const success = await axios.post(process.env.BLOCKCHAIN_URI + "/addBlock", { data: `Appointment Closed ${appointmentRecord._id}` });
+
                 if (success.status === 200) {
+                    const patient = await User.find({ userName: patientID });
+
+                    sendCustomMail(patient.email, "Appointment Closed", appointmentClosedHTMLText({ ...patient.name }, appointmentRecord.tokenID));
+
                     return appointmentRecord;
                 }
                 else {
@@ -120,6 +131,10 @@ module.exports = {
                 const success = await axios.post(process.env.BLOCKCHAIN_URI + "/addBlock", { data: `Appointment Approved ${appointmentRecord._id}` });
 
                 if (success.status === 200) {
+                    const patient = await User.find({ userName: patientID });
+
+                    sendCustomMail(patient.email, "Appointment Approved", appointmentApprovedHTMLText({ ...patient.name }, appointmentRecord.tokenID));
+
                     return appointmentRecord;
                 }
                 else {
